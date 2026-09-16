@@ -1,3 +1,7 @@
 [user]
 	name = runxin shao
 	email = shaorunxinnb@gmail.com
+
+[core]
+	# 跨平台写法：用 ~ 而不是 /Users/... ，Linux 上同样生效
+	excludesfile = ~/.gitignore_global

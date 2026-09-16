@@ -87,13 +87,26 @@ fi
 # colored GCC warnings and errors
 #export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
-# some more ls aliases (eza)
-alias ls='eza --icons=auto --group-directories-first'
-alias ll='eza -alF --icons=auto --git --group-directories-first'
-alias la='eza -A --icons=auto'
-alias lt='eza --tree --level=2 --icons=auto'
-alias l='ls -CF'
-alias bat='batcat'
+# some more ls aliases —— 有 eza 就用 eza，没有就退回原生 ls
+if command -v eza >/dev/null 2>&1; then
+    alias ls='eza --icons=auto --group-directories-first'
+    alias ll='eza -alF --icons=auto --git --group-directories-first'
+    alias la='eza -A --icons=auto'
+    alias lt='eza --tree --level=2 --icons=auto'
+    alias l='eza --icons=auto'
+else
+    alias ll='ls -alF --color=auto'
+    alias la='ls -A --color=auto'
+    alias l='ls -CF --color=auto'
+fi
+
+# Debian/Ubuntu 包名冲突：bat 装成 batcat、fd 装成 fdfind，这里抹平
+if command -v batcat >/dev/null 2>&1 && ! command -v bat >/dev/null 2>&1; then
+    alias bat='batcat'
+fi
+if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
+    alias fd='fdfind'
+fi
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
@@ -118,19 +131,46 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
-eval "$(zoxide init bash)"
-eval "$(zoxide init --cmd cd bash)"
+# ----- fzf (Ctrl+R 历史 / Ctrl+T 文件 / Alt+C 目录) ---------
+if command -v fzf >/dev/null 2>&1; then
+    if fzf --bash >/dev/null 2>&1; then
+        eval "$(fzf --bash)"                  # fzf >= 0.48
+    else
+        for _f in /usr/share/doc/fzf/examples/key-bindings.bash \
+                  /usr/share/doc/fzf/examples/completion.bash; do
+            [ -r "$_f" ] && . "$_f"
+        done
+        unset _f
+    fi
+fi
 
+# ----- nvm (Node 版本管理) ----------------------------------
+# 官方 curl 脚本(~/.nvm) 和 brew($HOMEBREW_PREFIX/opt/nvm) 两种装法都兼容
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-source /usr/share/doc/fzf/examples/key-bindings.bash
-alias fd=fdfind
-if [ -f /home/rx/.bash-git-prompt/gitprompt.sh ]; then
+if [ -s "$NVM_DIR/nvm.sh" ]; then
+    \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+elif [ -n "$HOMEBREW_PREFIX" ] && [ -s "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" ]; then
+    [ -d "$NVM_DIR" ] || mkdir -p "$NVM_DIR"
+    \. "$HOMEBREW_PREFIX/opt/nvm/nvm.sh"
+    [ -s "$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm" ] && \
+        \. "$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm"
+fi
+
+# ----- bash-git-prompt --------------------------------------
+# 用 $HOME 而不是写死 /home/rx，换机器/换用户名才不会失效
+if [ -f "$HOME/.bash-git-prompt/gitprompt.sh" ]; then
     GIT_PROMPT_ONLY_IN_REPO=1
     GIT_PROMPT_THEME=Solarized_Ubuntu
-    # Set dir explicitly: gitprompt auto-detects it via `cd`, but zoxide (above)
-    # overrides `cd` and breaks that detection, leaving __GIT_PROMPT_DIR empty.
-    __GIT_PROMPT_DIR=/home/rx/.bash-git-prompt
-    source /home/rx/.bash-git-prompt/gitprompt.sh
+    # 必须显式指定目录：gitprompt 靠 `cd` 自动探测，但下面的 zoxide 接管了 cd，
+    # 会让 __GIT_PROMPT_DIR 探测失败变成空。
+    __GIT_PROMPT_DIR="$HOME/.bash-git-prompt"
+    . "$HOME/.bash-git-prompt/gitprompt.sh"
 fi
+
+# ----- 机器专属配置 / 密钥 (不进 git) -----------------------
+[ -r "$HOME/.bashrc.local" ] && . "$HOME/.bashrc.local"
+
+# ----- zoxide (智能 cd) —— 必须放在最后 --------------------
+# 只 init 一次，--cmd cd 让 zoxide 直接接管 cd
+command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init --cmd cd bash)"

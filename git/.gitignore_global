@@ -1,0 +1,19 @@
+# 全局忽略 —— 只放"操作系统/编辑器噪音"，项目自己的东西留给项目的 .gitignore
+# 由 gitconfig 的 core.excludesfile 引用
+
+# macOS
+.DS_Store
+.AppleDouble
+._*
+
+# Linux
+*~
+.directory
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# 编辑器临时文件
+*.swp
+*.swo
