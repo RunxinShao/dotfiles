@@ -91,7 +91,7 @@ dotfiles/
 ~/.gitignore_global -> ~/dotfiles/git/.gitignore_global
 ```
 
-因此，Shell 实际加载的是 `$HOME` 下的文件，但文件内容由 `~/dotfiles` 仓库统一管理。修改配置后，可以直接提交仓库中的对应文件。
+因此，Shell 实际加载的是 `$HOME` 下的文件，但文件内容由 `~/dotfiles` 仓库统一管理。由于这些文件是软链接，使用 `cat ~/.zshrc`、`cat ~/.bashrc` 等命令查看时，会自动读取对应的 `~/dotfiles` 文件内容。
 
 检查链接是否生效：
 
