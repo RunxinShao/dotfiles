@@ -93,6 +93,8 @@ dotfiles/
 
 因此，Shell 实际加载的是 `$HOME` 下的文件，但文件内容由 `~/dotfiles` 仓库统一管理。由于这些文件是软链接，使用 `cat ~/.zshrc`、`cat ~/.bashrc` 等命令查看时，会自动读取对应的 `~/dotfiles` 文件内容。
 
+修改 `~/.zshrc` 或 `~/.bashrc`，实际也会修改 `~/dotfiles/zsh/.zshrc` 或 `~/dotfiles/bash/.bashrc`。如果只想保存本机专属的配置（例如 API key、代理或本机 alias），请放在 `~/.zshrc.local` 或 `~/.bashrc.local` 中；这些文件才是本机独有的配置，不会同步到仓库。
+
 检查链接是否生效：
 
 ```bash
@@ -167,13 +169,14 @@ ssh -T git@github.com
 
 ## 本机专属配置
 
-`bootstrap.sh` 会创建：
+公共配置放在仓库中，本机专属内容放在以下文件中：
 
 ```bash
 ~/.zshrc.local
+~/.bashrc.local
 ```
 
-把本机私密内容放进去，比如 API key、代理、特殊 alias：
+`bootstrap.sh` 会自动创建 `~/.zshrc.local`。编辑 Zsh 的本机配置：
 
 ```bash
 ${EDITOR:-vi} "$HOME/.zshrc.local"
@@ -186,6 +189,8 @@ ${EDITOR:-vi} "$HOME/.zshrc.local"
 # export HTTP_PROXY="http://127.0.0.1:7890"
 # alias cproj='cd ~/projects/myproject'
 ```
+
+不要把 API key、密码、token 或私钥写入仓库中的配置文件。`*.local` 文件会被 `.gitignore` 忽略。
 
 ## 更新配置
 
@@ -229,11 +234,3 @@ cd "$HOME/dotfiles"
 stow -d "$HOME/dotfiles" -t "$HOME" --restow zsh bash git
 exec zsh
 ```
-
----
-
-## 说明
-
-- 这个仓库是给自己用的 dotfiles，不会把本机密钥提交进 Git。
-- `*.local` 文件会被 `.gitignore` 忽略。
-- 修改配置后，直接在 `$HOME` 下编辑对应文件即可，仓库里的文件会同步更新。
