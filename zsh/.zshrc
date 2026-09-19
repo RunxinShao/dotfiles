@@ -1,6 +1,6 @@
 # ============================================================
 #  ~/.zshrc  —  跨平台 (macOS / Linux) + Oh My Zsh
-#  工具栈: eza / bat / fd / fzf / zoxide / nvm
+#  工具栈: eza / bat / fd / fzf / zoxide / nvm / gh (GitHub CLI)
 #  本文件由 ~/dotfiles/zsh/.zshrc 经 stow 链接过来，改这里就等于改 repo
 #
 #  设计原则：所有东西都先检测存在再启用，所以同一份文件
@@ -90,6 +90,19 @@ if (( $+commands[fzf] )); then
   fi
 fi
 
+# ----- gh (GitHub CLI) --------------------------------------
+# gh 的 zsh 补全要现场生成。直接 eval 会每次启动多开一个子进程(~50ms)，
+# 所以缓存到文件，只在 gh 二进制比缓存新（= 升级过）时重新生成。
+# 注意必须放在 oh-my-zsh 之后，因为补全脚本用了 compdef。
+if (( $+commands[gh] )); then
+  _gh_comp="${ZSH_CACHE_DIR:-$HOME/.cache}/gh-completion.zsh"
+  if [[ ! -s $_gh_comp || $commands[gh] -nt $_gh_comp ]]; then
+    mkdir -p "${_gh_comp:h}" && gh completion -s zsh >| "$_gh_comp" 2>/dev/null
+  fi
+  [[ -s $_gh_comp ]] && source "$_gh_comp"
+  unset _gh_comp
+fi
+
 # ----- nvm (Node 版本管理) ----------------------------------
 # 两种安装方式都兼容：官方 curl 脚本装到 ~/.nvm，brew 装到 $HOMEBREW_PREFIX/opt/nvm。
 # 不管哪种，node 版本数据目录都是 ~/.nvm。
@@ -117,10 +130,9 @@ fi
 (( $+commands[zoxide] )) && eval "$(zoxide init --cmd cd zsh)"
 
 # ============================================================
-#  新机器上手动补的东西：
-#    oh-my-zsh: sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-#    插件:      git clone https://github.com/zsh-users/zsh-autosuggestions     $ZSH/custom/plugins/zsh-autosuggestions
-#               git clone https://github.com/zsh-users/zsh-syntax-highlighting $ZSH/custom/plugins/zsh-syntax-highlighting
-#    工具:      mac  -> brew install eza bat fd fzf zoxide
-#               apt  -> sudo apt install eza bat fd-find fzf zoxide
+#  新机器怎么搞: git clone 下来跑一次 bootstrap 就行
+#    git clone git@github.com:RunxinShao/dotfiles.git ~/dotfiles
+#    bash ~/dotfiles/bootstrap.sh
+#  它会装: 工具栈 + gh + oh-my-zsh(含两个插件) + Claude Code，再 stow 链接过来。
+#  手动等价物见 bootstrap.sh 里的各个 install_* 函数。
 # ============================================================
