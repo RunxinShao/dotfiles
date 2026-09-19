@@ -80,6 +80,27 @@ dotfiles/
 
 ---
 
+## 配置文件链接关系
+
+执行 `bootstrap.sh` 后，Stow 会把仓库中的配置链接到用户主目录：
+
+```text
+~/.zshrc            -> ~/dotfiles/zsh/.zshrc
+~/.bashrc           -> ~/dotfiles/bash/.bashrc
+~/.gitconfig        -> ~/dotfiles/git/.gitconfig
+~/.gitignore_global -> ~/dotfiles/git/.gitignore_global
+```
+
+因此，Shell 实际加载的是 `$HOME` 下的文件，但文件内容由 `~/dotfiles` 仓库统一管理。修改配置后，可以直接提交仓库中的对应文件。
+
+检查链接是否生效：
+
+```bash
+ls -l ~/.zshrc ~/.bashrc ~/.gitconfig ~/.gitignore_global
+```
+
+---
+
 ## 支持的系统
 
 - macOS
