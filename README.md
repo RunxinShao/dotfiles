@@ -95,6 +95,8 @@ dotfiles/
 
 修改 `~/.zshrc` 或 `~/.bashrc`，实际也会修改 `~/dotfiles/zsh/.zshrc` 或 `~/dotfiles/bash/.bashrc`。如果只想保存本机专属的配置（例如 API key、代理或本机 alias），请放在 `~/.zshrc.local` 或 `~/.bashrc.local` 中；这些文件才是本机独有的配置，不会同步到仓库。
 
+注意：`~/.zshrc` 会自动加载 `~/.zshrc.local`，`~/.bashrc` 也会自动加载 `~/.bashrc.local`。因此，把本机私密配置放在这两个 `.local` 文件里即可，不需要手动写进公共配置中。这两个 `.local` 文件会被 `.gitignore` 忽略，不会提交到 Git。
+
 检查链接是否生效：
 
 ```bash
@@ -234,3 +236,11 @@ cd "$HOME/dotfiles"
 stow -d "$HOME/dotfiles" -t "$HOME" --restow zsh bash git
 exec zsh
 ```
+
+---
+
+## 说明
+
+- 这个仓库是给自己用的 dotfiles，不会把本机密钥提交进 Git。
+- `*.local` 文件会被 `.gitignore` 忽略。
+- 修改配置后，直接在 `$HOME` 下编辑对应文件即可，仓库里的文件会同步更新。
