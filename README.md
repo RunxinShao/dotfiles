@@ -20,12 +20,65 @@ exec zsh
 
 ---
 
-## 这个仓库包含什么
+## 文件和目录说明
 
-- `zsh/.zshrc`: zsh + Oh My Zsh + alias / fzf / zoxide / gh 补全
-- `bash/.bashrc`: bash 兼容配置
-- `git/.gitconfig`: Git 用户信息
-- `bootstrap.sh`: 新机器一键初始化脚本
+```text
+dotfiles/
+├── bootstrap.sh       # 新机器初始化脚本
+├── zsh/
+│   └── .zshrc         # Zsh 配置
+├── bash/
+│   └── .bashrc        # Bash 配置
+├── git/
+│   ├── .gitconfig     # Git 配置
+│   └── .gitignore_global # Git 全局忽略规则
+└── .gitignore         # 仓库自身的忽略规则
+```
+
+### `bootstrap.sh`
+
+新机器上的一键初始化脚本，主要负责“安装和准备环境”：
+
+- 根据系统使用 Homebrew 或 `apt` 安装工具
+- 安装 Zsh、Git、Stow、fzf、zoxide、eza、bat、fd、gh 等
+- 安装 Oh My Zsh 和 Zsh 插件
+- 安装 Claude Code
+- 使用 Stow 把配置文件链接到 `$HOME`
+- 创建 `~/.zshrc.local`，保存本机专属配置
+
+它通常只需要在新机器上执行一次；以后更新配置时也可以重新执行。
+
+### `zsh/`
+
+存放 Zsh 配置。`zsh/.zshrc` 会在启动 Zsh 时加载，用来设置：
+
+- Oh My Zsh 和插件
+- alias
+- `fzf`、`zoxide`、`nvm`、GitHub CLI 补全
+- 本机的 `~/.zshrc.local`
+
+它负责“启动时配置环境”，不负责安装软件。
+
+### `bash/`
+
+存放 Bash 配置。`bash/.bashrc` 负责 Bash 启动时的：
+
+- alias 和命令补全
+- `fzf`、`nvm`、`zoxide` 配置
+- 本机的 `~/.bashrc.local`
+
+### `git/`
+
+存放 Git 相关配置：
+
+- `.gitconfig`：Git 用户名、邮箱和全局忽略文件位置
+- `.gitignore_global`：所有 Git 仓库通用的忽略规则
+
+### `.gitignore`
+
+只用于忽略当前 dotfiles 仓库中的文件，例如日志、`.DS_Store` 和 `*.local` 文件，避免把本机配置或敏感信息提交到 Git。
+
+---
 
 ## 支持的系统
 
